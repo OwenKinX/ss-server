@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const moment = require('moment-timezone');
+const dateThailand = moment.tz(Date.now(), "Asia/Bangkok");
 const Schema = mongoose.Schema;
 
 const SaleSchema = new Schema({
@@ -17,7 +19,8 @@ const SaleSchema = new Schema({
     },
     date:{
         type: Date,
-        required: true
+        required: true,
+        default: dateThailand
     },
     delivery: {
         type: String,

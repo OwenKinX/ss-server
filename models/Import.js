@@ -1,4 +1,6 @@
 const mongoose =  require('mongoose');
+const moment = require('moment-timezone');
+const dateThailand = moment.tz(Date.now(), "Asia/Bangkok");
 const Schema = mongoose.Schema
 
 const ImportSchema = new Schema({
@@ -17,7 +19,8 @@ const ImportSchema = new Schema({
     },
     date: {
         type: Date,
-        required: true
+        required: true,
+        default: dateThailand
     },
     bill_no: {
         type: Number,
@@ -40,5 +43,5 @@ const ImportSchema = new Schema({
     }
 }, {timestamps: true});
 
-const Import = mongoose.model('Imports', ImportSchema)
-module.exports = Import;
+const Imports = mongoose.model('Imports', ImportSchema)
+module.exports = Imports;

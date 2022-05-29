@@ -26,12 +26,20 @@ const cusRoute = require("./routes/managements/customer.routes");
 const categRoute = require("./routes/managements/category.routes");
 const productRoute = require("./routes/managements/product.routes");
 
+// report
+const empReport = require("./routes/reports/emp-rep.routes");
+const impReport = require("./routes/reports/imp-rep.routes");
+const saleReport = require("./routes/reports/sale-rep.routes");
+
 // order and import
 const orderRoute = require("./routes/import-order/order.routes");
+const orderDetail = require("./routes/import-order/orderDetail.routes");
 const importRoute = require("./routes/import-order/import.routes");
 
 // service
 const saleRoute = require("./routes/services/sale.routes");
+const saleDetail = require("./routes/services/saleDetail.routes");
+const userCart = require("./routes/services/cart.routes");
 
 app.use('/images', express.static(path.join(__dirname, 'public/images')));
 
@@ -54,11 +62,20 @@ app.use("/api", cusRoute);
 app.use("/api", categRoute);
 app.use("/api", productRoute);
 
+// report
+app.use("/api", empReport);
+app.use("/api", impReport);
+app.use("/api", saleReport);
+
+
 // order and import
 app.use("/api", orderRoute);
+app.use("/api", orderDetail);
 app.use("/api", importRoute);
 
 // service
 app.use("/api", saleRoute);
+app.use("/api", saleDetail);
+app.use("/api", userCart);
 
 module.exports = app;

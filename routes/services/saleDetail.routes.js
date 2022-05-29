@@ -7,7 +7,7 @@ const SaleDetail = require("./../../models/SaleDetail");
 router.post("/saledetail/add", (req, res) => {
     const saleDetail = new SaleDetail({
         sle_qty: req.body.sle_qty,
-        price: req.body.price,
+        price: req.body.price * 1.06,
         product: req.body.product,
         sale: req.body.sale
     });
@@ -53,7 +53,12 @@ router.put("/saledetail/update/:id", async(req, res) => {
     try{
         const _id = req.params.id;
         const saleDetail = await SaleDetail.findByIdAndUpdate(_id,{
-            $set:req.body
+            $set: {
+                sle_qty: req.body.sle_qty,
+                price: req.body.price + 1000,
+                product: req.body.product,
+                sale: req.body.sale
+            }
         }, {new: true});
         if(saleDetail){
             res.status(200).json({ message: "ແກ້ໄຂຂໍ້ມູນສຳເລັດ" });

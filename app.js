@@ -30,6 +30,8 @@ const productRoute = require("./routes/managements/product.routes");
 const empReport = require("./routes/reports/emp-rep.routes");
 const impReport = require("./routes/reports/imp-rep.routes");
 const saleReport = require("./routes/reports/sale-rep.routes");
+const productReport = require("./routes/reports/rep-product.routes");
+const incomeRoute = require("./routes/reports/income-rep.routes");
 
 // order and import
 const orderRoute = require("./routes/import-order/order.routes");
@@ -66,6 +68,8 @@ app.use("/api", productRoute);
 app.use("/api", empReport);
 app.use("/api", impReport);
 app.use("/api", saleReport);
+app.use("/api", productReport);
+app.use("/api", incomeRoute);
 
 
 // order and import

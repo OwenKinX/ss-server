@@ -10,7 +10,6 @@ router.get('/employees/report', (req, res) => {
                 foreignField: 'ep_id',
                 as: 'position'
             }
-            
         },
         { $unwind:'$position' },
         {

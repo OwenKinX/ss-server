@@ -82,7 +82,7 @@ router.put('/emp/update/:id', async(req, res) => {
         const image = req.file;
 
         if(typeof req.file === "undefined"){
-            image = 'vavtar.png';
+            image = `${url}/images/avatar.png`;
         }else{
             image = `${url}/images/${req.file.filename}`;
         }

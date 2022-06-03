@@ -48,6 +48,36 @@ router.get('/products', async(req, res) => {
     }
 })
 
+router.get('/products/detail', (req, res) => {
+    Product.aggregate([
+        {
+            $lookup:{
+                from: 'product-types',
+                localField: 'type',
+                foreignField: 'pt_id',
+                as: 'type'
+            },
+        },
+        { $unwind: '$type' },
+        {
+            $lookup:{
+                from: 'product-units',
+                localField: 'unit',
+                foreignField: 'symbol',
+                as: 'unit'
+            }
+        },
+        { $unwind:'$unit' }
+    ]).exec((err, result) => {
+        if(err){
+            res.status(500).json({
+                message:err
+            })
+        }
+        res.status(200).json(result)
+    })
+});
+
 router.get('/products/sum/stock', async(req,res) => {
     try {
         const product = await Product.aggregate([
@@ -88,23 +118,24 @@ router.get('/product/:id', async(req, res) => {
 
 // update
 router.put('/product/update/:id', extractFile,(req, res) => {
-    let image = req.body.image;
-    if(req.file){
-        const url = `${req.protocol}://${req.get('host')}`;
-        image = `${url}/images/${req.file.filename}`;
-    }
-    const product = new Product({
-        _id: req.body.id,
-        pro_id: req.body.pro_id,
-        name: req.body.name,
-        price: req.body.price,
-        description: req.body.description,
-        stock_qty: req.body.stock_qty,
-        type: req.body.type,
-        unit: req.body.unit,
-        image: image
-    });
-    Product.findByIdAndUpdate({_id: req.params.id}).then(result => {
+    const url = `${req.protocol}://${req.get('host')}`;
+    image = `${url}/images/${req.file.filename}`;
+    const product = Product.findByIdAndUpdate(
+        {_id: req.params.id},
+        {
+            $set: {
+                pro_id: req.body.pro_id,
+                name: req.body.name,
+                price: req.body.price,
+                description: req.body.description,
+                stock_qty: req.body.stock_qty,
+                type: req.body.type,
+                unit: req.body.unit,
+                image: image
+            }
+        },
+        {new: true}
+    ).then(result => {
         if(result){
             res.status(200).json({
                 message: "Product updated successfully."

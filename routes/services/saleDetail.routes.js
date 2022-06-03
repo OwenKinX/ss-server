@@ -7,7 +7,7 @@ const SaleDetail = require("./../../models/SaleDetail");
 router.post("/saledetail/add", (req, res) => {
     const saleDetail = new SaleDetail({
         sle_qty: req.body.sle_qty,
-        price: req.body.price * 1.06,
+        price: req.body.price * 1.05,
         product: req.body.product,
         sale: req.body.sale
     });

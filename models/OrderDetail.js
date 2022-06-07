@@ -11,7 +11,7 @@ const OrderDetailSchema = new Schema({
         required: true
     },
     product: {
-        type: String,
+        type: Number,
         ref: 'Products',
         required: true
     },

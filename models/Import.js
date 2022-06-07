@@ -27,7 +27,7 @@ const ImportSchema = new Schema({
         required: true
     },
     product: {
-        type: String,
+        type: Number,
         ref: 'Products',
         required: true
     },

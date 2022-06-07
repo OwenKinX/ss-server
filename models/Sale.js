@@ -1,13 +1,11 @@
 const mongoose = require("mongoose");
-const moment = require('moment-timezone');
-const dateThailand = moment.tz(Date.now(), "Asia/Bangkok");
 const Schema = mongoose.Schema;
 
 const SaleSchema = new Schema({
-    inv_no: {
+    invoice_no: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
     },
     sale_type: {
         type: String,
@@ -19,29 +17,20 @@ const SaleSchema = new Schema({
     },
     date:{
         type: Date,
-        required: true,
-        default: dateThailand
+        required: true
     },
     delivery: {
         type: String,
     },
-    place_deli:{
-        type: String,
-    },
-    deliver_cost:{
-        type: Number,
-        default: 0,
-    },
     customer: {
         type: Number,
         ref: 'Customers',
-        required: true
     },
     employee: {
         type: String,
         ref: 'Employees',
         required: true
-    },
+    }
 });
 
 const Sale = mongoose.model("Sales", SaleSchema);

@@ -6,13 +6,11 @@ const Sales = require("./../../models/Sale");
 // add sale data
 router.post('/sales/add', (req, res) => {
     const sales = new Sales({
-        inv_no: req.body.inv_no,
+        invoice_no: req.body.invoice_no,
         sale_type: req.body.sale_type,
         cash: req.body.cash,
         date: req.body.date,
         delivery: req.body.delivery,
-        place_deli: req.body.place_deli,
-        deliver_cost: req.body.deliver_cost,
         customer: req.body.customer,
         employee: req.body.employee
     });
@@ -22,9 +20,9 @@ router.post('/sales/add', (req, res) => {
         });
     }).catch(err => {
         res.status(500).json({
-            error: err
+            error: {err, message: err.message}
         });
-        logger.error(`${err.status || 500} - ${res.statusMessage} - ${ err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+        logger.error(`${err.status || 500} - ${res.statusMessage} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
     });
 });
 

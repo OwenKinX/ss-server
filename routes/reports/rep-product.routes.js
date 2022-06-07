@@ -21,7 +21,7 @@ router.get('/products/report', (req, res) => {
                 name:1,
                 price:1,
                 stock_qty:1,
-                total: { $multiply: ['$price', '$stock_qty']},
+                total: { $multiply: ['$price', '$stock_qty'] },
                 image:1
             }
         }
@@ -39,7 +39,7 @@ router.get('/products/amount', (req,res) =>{
         {
             $group:{
                 _id:null,
-                total: { $sum: { $multiply: ['$price', '$stock_qty']} }
+                productGrandTotal: { $sum: { $multiply: ['$price', '$stock_qty']} }
             }
         }
     ]).exec((err, result) => {

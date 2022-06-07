@@ -11,7 +11,7 @@ router.get('/income/report', async(req, res) => {
         const income = await SaleDetail.aggregate([
             {
                 $match:{
-                    createdAt:{$gte:prevMonth}
+                    createdAt:{ $gte:prevMonth }
                 }
             },
             {

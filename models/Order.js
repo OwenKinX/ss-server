@@ -27,7 +27,7 @@ const OrderSchema = new Schema({
         type: String,
         ref: 'Suppliers',
         required: true
-    },
+    }
 });
 
 const Order = mongoose.model("Orders", OrderSchema);

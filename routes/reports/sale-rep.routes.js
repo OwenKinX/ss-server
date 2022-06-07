@@ -8,7 +8,7 @@ router.get('/saledetail/report', (req,res) => {
             $lookup:{
                 from: 'sales',
                 localField: 'sale',
-                foreignField: 'inv_no',
+                foreignField: 'invoice_no',
                 as: 'sale'
             }
         },
@@ -79,7 +79,7 @@ router.get('/saledetail/amount', (req, res) => {
         {
             $group:{
                 _id: null,
-                total: { $sum: { $multiply: [ "$price", "$sle_qty" ] }}
+                saleGrandTotal: { $sum: { $multiply: [ "$price", "$sle_qty" ] }}
             }
         }
     ]).exec((err, result) => {

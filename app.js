@@ -37,6 +37,7 @@ const incomeRoute = require("./routes/reports/income-rep.routes");
 const orderRoute = require("./routes/import-order/order.routes");
 const orderDetail = require("./routes/import-order/orderDetail.routes");
 const importRoute = require("./routes/import-order/import.routes");
+const orderBill =  require("./routes/import-order/order-bill.routes");
 
 // service
 const saleRoute = require("./routes/services/sale.routes");
@@ -76,6 +77,7 @@ app.use("/api", incomeRoute);
 app.use("/api", orderRoute);
 app.use("/api", orderDetail);
 app.use("/api", importRoute);
+app.use("/api", orderBill);
 
 // service
 app.use("/api", saleRoute);

@@ -8,13 +8,13 @@ router.post('/cart/add', (req,res) => {
         price: req.body.price,
         qty: req.body.qty,
         address: req.body.address,
-        customer: req.body.customer,
+        customer: req.body.customer
     });
     cart.save().then(result => {
         res.status(200).json(result);
     }).catch(err => {
         res.status(500).json({
-            error: err
+            error: err.message
         });
         logger.error(`${err.status || 500} - ${res.statusMessage} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
     })
@@ -25,9 +25,50 @@ router.get('/cart', (req, res) => {
         res.status(200).json(result);
     }).catch(err => {
         res.status(500).json({
-            error: err
+            error: err.message
         });
         logger.error(`${err.status || 500} - ${res.statusMessage} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+    })
+})
+
+router.get('/cart/user', (req,res) => {
+    Cart.aggregate([
+        {
+            $lookup:{
+                from: 'products',
+                localField: 'product',
+                foreignField: 'pro_id',
+                as: 'product'
+            },
+        },
+        { $unwind:'$product' },
+        {
+            $lookup:{
+                from: 'customers',
+                localField: 'customer',
+                foreignField: 'cus_id',
+                as: 'customer'
+            }
+        },
+        { $unwind: '$customer' },
+        {
+            $project:{
+                _id:1,
+                product: '$product.image',
+                p_name: '$product.name',
+                price:1,
+                qty:1,
+                address:1,
+                customer: '$customer.cus_id',
+                c_name: '$customer.name',
+                createdAt:1
+            }
+        }
+    ]).exec((err, result) => {
+        if(err){
+            res.status(500).json({ message:err.message });
+        }
+        res.status(200).json(result)
     })
 })
 
@@ -36,7 +77,7 @@ router.get('/cart/:customer', (req, res) => {
         res.status(200).json(cart);
     }).catch(err => {
         res.status(500).json({
-            error:err
+            error: err.message
         });
         logger.error(`${err.status || 500} - ${res.statusMessage} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
     })
@@ -50,7 +91,7 @@ router.delete('/cart/delete/:id', (req, res) => {
         });
     }).catch(err => {
         res.status(500).json({
-            error: err
+            error: err.message
         });
         logger.error(`${err.status || 500} - ${res.statusMessage} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`); 
     })

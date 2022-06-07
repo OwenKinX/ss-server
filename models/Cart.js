@@ -1,14 +1,14 @@
 const mongoose = require('mongoose');
 const moment = require('moment-timezone');
-const dateLaos = moment.tz(Date.now(), "Asia/Vientiane").utcOffset("+07:00");
+const dateLaos = moment.tz(new Date(), "Asia/Vientiane").utcOffset("+07:00");
 
 const Schema = mongoose.Schema;
 
 const CartSchema = new Schema({
     product:{
-        type:String,
+        type:Number,
         ref: 'Products',
-        required:true
+        required:true,
     },
     price:{
         type:Number,
@@ -23,8 +23,9 @@ const CartSchema = new Schema({
         required:true
     },
     customer:{
-        type:String,
-        ref: 'Customers'
+        type:Number,
+        ref: 'Customers',
+        required:true
     },
     createdAt:{
         type:Date,
@@ -36,5 +37,5 @@ const CartSchema = new Schema({
     }
 })
 
-const Cart = mongoose.model("Cart", CartSchema);
+const Cart = mongoose.model("Carts", CartSchema);
 module.exports = Cart;

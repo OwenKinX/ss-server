@@ -48,33 +48,48 @@ router.get('/products', async(req, res) => {
     }
 })
 
-router.get('/products/detail', (req, res) => {
+// for report product
+router.get('/products/sales', (req, res) => {
     Product.aggregate([
+        // {
+        //     $lookup:{
+        //         from: 'product-types',
+        //         localField: 'type',
+        //         foreignField: 'pt_id',
+        //         as: 'type'
+        //     },
+        // },
+        // { $unwind: '$type' },
+        // {
+        //     $lookup:{
+        //         from: 'product-units',
+        //         localField: 'unit',
+        //         foreignField: 'symbol',
+        //         as: 'unit'
+        //     }
+        // },
+        // { $unwind:'$unit' },
         {
-            $lookup:{
-                from: 'product-types',
-                localField: 'type',
-                foreignField: 'pt_id',
-                as: 'type'
-            },
-        },
-        { $unwind: '$type' },
-        {
-            $lookup:{
-                from: 'product-units',
-                localField: 'unit',
-                foreignField: 'symbol',
-                as: 'unit'
+            $project:{
+                _id: 1,
+                pro_id: 1,
+                name: 1,
+                price: 1,
+                description: 1,
+                image: 1
+                // type: '$type',
+                // unit: '$unit'
             }
-        },
-        { $unwind:'$unit' }
+        }
     ]).exec((err, result) => {
-        if(err){
+        if(result){
+            res.status(200).json(result)
+        }else{
             res.status(500).json({
-                message:err
+               error: err,
+               message: err.message
             })
         }
-        res.status(200).json(result)
     })
 });
 

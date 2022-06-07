@@ -31,8 +31,7 @@ router.post("/register", (req, res) => {
 // login route for admin
 router.post("/login", (req, res) => {
     let fetchUser;
-    Admin.findOne({ email: req.body.email })
-    .then(user => {
+    Admin.findOne({ email: req.body.email }).then(user => {
         if(!user) {
             return res.status(404).json({message: "ບໍ່ມີຜູ້ໃຊ້ນີ້ / User not found"});
         }
@@ -47,7 +46,7 @@ router.post("/login", (req, res) => {
             process.env.TOKEN_KEY,
             { expiresIn: "2h" }
         )
-        return res.status(200).json({ token: token, expiresIn: 7200 });
+        return res.status(200).json({ result: result, token: token, expiresIn: 7200 });
     }).catch(err => {
         res.status(500).json({message: err.message});
     })

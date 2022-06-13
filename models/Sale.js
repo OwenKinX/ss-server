@@ -31,7 +31,7 @@ const SaleSchema = new Schema({
         ref: 'Employees',
         required: true
     }
-});
+},{timestamps:true});
 
 const Sale = mongoose.model("Sales", SaleSchema);
 module.exports = Sale;

@@ -3,6 +3,7 @@ const router = express.Router();
 const logger = require("./../../utils/logger");
 const Product = require("./../../models/Products");
 const extractFile = require("./../../middleware/file");
+const fs = require('fs');
 
 // add
 router.post("/product/add", extractFile, (req, res) => {
@@ -51,34 +52,41 @@ router.get('/products', async(req, res) => {
 // for report product
 router.get('/products/sales', (req, res) => {
     Product.aggregate([
-        // {
-        //     $lookup:{
-        //         from: 'product-types',
-        //         localField: 'type',
-        //         foreignField: 'pt_id',
-        //         as: 'type'
-        //     },
-        // },
-        // { $unwind: '$type' },
-        // {
-        //     $lookup:{
-        //         from: 'product-units',
-        //         localField: 'unit',
-        //         foreignField: 'symbol',
-        //         as: 'unit'
-        //     }
-        // },
-        // { $unwind:'$unit' },
         {
             $project:{
-                _id: 1,
+                _id:0,
                 pro_id: 1,
                 name: 1,
                 price: 1,
                 description: 1,
+                stock_qty:1,
                 image: 1
-                // type: '$type',
-                // unit: '$unit'
+            }
+        }
+    ]).exec((err, result) => {
+        if(result){
+            res.status(200).json(result)
+        }else{
+            res.status(500).json({
+               error: err,
+               message: err.message
+            })
+        }
+    })
+});
+
+// get product to order
+router.get('/products/order', (req, res) => {
+    Product.aggregate([
+        {
+            $project:{
+                _id:0,
+                pro_id: 1,
+                name: 1,
+                price: 1,
+                description: 1,
+                stock_qty:1,
+                image: 1
             }
         }
     ]).exec((err, result) => {
@@ -118,7 +126,7 @@ router.get('/product/:id', async(req, res) => {
         const _id = req.params.id;
         const product = await Product.findOne({_id});
         if (product) {
-            res.status(200).send(product)
+            res.status(200).send(product);
         }else{
             res.status(404).send({ message: "[ -- ບໍ່ພົບຂໍ້ມູນສິນຄ້າ / No product found -- ]"});
             logger.error(`404 || ${res.statusMessage} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
@@ -171,8 +179,20 @@ router.put('/product/update/:id', extractFile,(req, res) => {
 // delete
 router.delete('/product/delete/:id', async(req, res) => {
     try{
-        const _id = req.params.id
-        const product = await Product.findByIdAndRemove({_id})
+        const _id = req.params.id;
+        const product = await Product.findByIdAndRemove({_id});
+        
+        const imageRes = product.image;
+        console.log(imageRes.replace('http://localhost:8001/images/',''));
+        fs.unlinkSync(`${__dirname}/public/images/${imageRes}`, (err) => {
+            if(err){
+                err.message = "Can not delete image"
+                res.status(500).json({ err });
+                return;
+            }
+            console.log("Image Delete Successfully");
+        });
+
         if (product) {
             res.status(200).send({ message: "[ -- ລົບຂໍ້ມູນສິນຄ້າສຳເລັດ | Product deleted successfully -- ]", product });
         }else{

@@ -5,16 +5,9 @@ const Sales = require("./../../models/Sale");
 
 // add sale data
 router.post('/sales/add', (req, res) => {
-    const sales = new Sales({
-        invoice_no: req.body.invoice_no,
-        sale_type: req.body.sale_type,
-        cash: req.body.cash,
-        date: req.body.date,
-        delivery: req.body.delivery,
-        customer: req.body.customer,
-        employee: req.body.employee
-    });
-    sales.save().then(result => {
+    Sales.create(
+        req.body
+    ).then(result => {
         res.status(200).json({
             message: "ບັນທຶກຂໍ້ມູນສຳເລັດ"
         });

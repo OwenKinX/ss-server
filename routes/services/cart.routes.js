@@ -1,16 +1,9 @@
 const router = require("express").Router();
 const logger = require("../../utils/logger");
-const Cart = require("../../models/Cart")
+const Cart = require("../../models/Cart");
 
 router.post('/cart/add', (req,res) => {
-    const cart = new Cart({
-        product: req.body.product,
-        price: req.body.price,
-        qty: req.body.qty,
-        address: req.body.address,
-        customer: req.body.customer
-    });
-    cart.save().then(result => {
+    Cart.save().then(result => {
         res.status(200).json(result);
     }).catch(err => {
         res.status(500).json({

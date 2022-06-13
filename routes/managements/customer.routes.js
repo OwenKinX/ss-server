@@ -47,7 +47,10 @@ router.post("/customer/add", async (req, res) => {
 // get all
 router.get("/customers", async (req, res) => {
     try {
-        const customers = await Customer.find();
+        // const customers = await Customer.find({
+        //     cus_id: {$ne: 1}
+        // }).exec();
+        const customers = await Customer.find()
         res.status(200).send(customers);
     } catch (error) {
         res.status(500).send(error);

@@ -5,13 +5,9 @@ const OrderDetail = require("./../../models/OrderDetail");
 
 // add order detail data
 router.post("/orderDetail/add", (req, res) => {
-    const orderDetail = new OrderDetail({
-        ord_qty: req.body.ord_qty,
-        price: req.body.price,
-        product: req.body.product,
-        order: req.body.order
-    })
-    orderDetail.save().then(result => {
+    OrderDetail.insertMany(
+        req.body
+    ).then(result => {
         res.status(200).json({
             message: "ບັນທຶກຂໍ້ມູນສຳເລັດ"
         });
@@ -35,14 +31,14 @@ router.get("/orderDetail", (req, res) => {
     });
 });
 
-// get single order detail data
-router.get("/orderDetail/:id", (req, res) => {
-    const _id = req.params.id;
-    OrderDetail.findById({ _id }).then(orderDetail => {
+// get order detail data by order_no
+router.get("/orderDetail/:order_no", (req, res) => {
+    const order_no = req.params.order_no;
+    OrderDetail.find({order_no}).then(orderDetail => {
         res.status(200).json(orderDetail);
     }).catch(err => {
         res.status(500).json({
-            error: err
+            error: err.message
         });
         logger.error(`${err.status || 500} - ${res.statusMessage} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
     });
@@ -66,10 +62,23 @@ router.put("/orderDetail/update/:id", async (req, res) => {
     }
 });
 
-// delete order detail data
+// delete order detail single data
 router.delete("/orderDetail/delete/:id", (req, res) => {
     const _id = req.params.id;
     OrderDetail.findByIdAndRemove(_id).then(orderDetail => {
+        res.status(200).json({ message: "ລົບຂໍ້ມູນສຳເລັດ" });
+    }).catch(err => {
+        res.status(500).json({
+            error: err
+        });
+        logger.error(`${err.status || 500} - ${res.statusMessage} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+    });
+});
+
+// delete by drder_no
+router.delete("/orderDetail/deletes/:order_no", (req, res) => {
+    const order_no = req.params.order_no;
+    OrderDetail.deleteMany({order_no}).then(result => {
         res.status(200).json({ message: "ລົບຂໍ້ມູນສຳເລັດ" });
     }).catch(err => {
         res.status(500).json({

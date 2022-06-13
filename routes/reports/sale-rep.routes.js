@@ -3,11 +3,12 @@ const saleDetail = require('../../models/SaleDetail');
 const Sale =  require('../../models/Sale');
 
 router.get('/saledetail/report', (req,res) => {
+    const day = parseInt(req.query.day);
     saleDetail.aggregate([
         {
             $lookup:{
                 from: 'sales',
-                localField: 'sale',
+                localField: 'inv_no',
                 foreignField: 'invoice_no',
                 as: 'sale'
             }
@@ -16,7 +17,7 @@ router.get('/saledetail/report', (req,res) => {
         {
             $lookup:{
                 from: 'products',
-                localField: 'product',
+                localField: 'pro_id',
                 foreignField: 'pro_id',
                 as: 'product'
             }
@@ -26,13 +27,13 @@ router.get('/saledetail/report', (req,res) => {
             $project:{
                 _id:1,
                 price:1,
-                sle_qty:1,
+                qty:1,
                 date: '$sale.date',
                 product:'$product.name',
                 customer:'$sale.customer',
                 employee: '$sale.employee',
                 cash: '$sale.cash',
-                total:  { $multiply: [ "$price", "$sle_qty" ] }
+                total:  { $multiply: [ "$price", "$qty" ] }
             },
         },
         
@@ -79,7 +80,7 @@ router.get('/saledetail/amount', (req, res) => {
         {
             $group:{
                 _id: null,
-                saleGrandTotal: { $sum: { $multiply: [ "$price", "$sle_qty" ] }}
+                saleGrandTotal: { $sum: { $multiply: [ "$price", "$qty" ] }}
             }
         }
     ]).exec((err, result) => {

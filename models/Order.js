@@ -28,7 +28,7 @@ const OrderSchema = new Schema({
         ref: 'Suppliers',
         required: true
     }
-});
+},{timestamps:true});
 
 const Order = mongoose.model("Orders", OrderSchema);
 module.exports = Order;

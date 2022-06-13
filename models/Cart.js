@@ -1,41 +1,31 @@
 const mongoose = require('mongoose');
-const moment = require('moment-timezone');
-const dateLaos = moment.tz(new Date(), "Asia/Vientiane").utcOffset("+07:00");
+// const moment = require('moment-timezone');
+// const dateLaos = moment.tz(new Date(), "Asia/Vientiane").utcOffset("+07:00");
 
 const Schema = mongoose.Schema;
 
 const CartSchema = new Schema({
     product:{
         type:Number,
-        ref: 'Products',
-        required:true,
+        ref: 'Products'
+    },
+    p_name:{
+        type:String
     },
     price:{
-        type:Number,
-        required:true
+        type:Number
     },
     qty:{
-        type:Number,
-        required:true
+        type:Number
     },
     address:{
-        type:String,
-        required:true
+        type:String
     },
     customer:{
         type:Number,
-        ref: 'Customers',
-        required:true
-    },
-    createdAt:{
-        type:Date,
-        default: dateLaos
-    },
-    updatedAt:{
-        type:Date,
-        default: dateLaos
+        ref: 'Customers'
     }
-})
+},{timestamps:true})
 
 const Cart = mongoose.model("Carts", CartSchema);
 module.exports = Cart;

@@ -3,24 +3,20 @@ const Schema = mongoose.Schema;
 
 const OrderDetailSchema = new Schema({
     price: {
-        type: Number,
-        required: true
+        type: Number
     },
-    ord_qty: {
-        type: Number,
-        required: true
+    qty: {
+        type: Number
     },
-    product: {
+    pro_id: {
         type: Number,
-        ref: 'Products',
-        required: true
+        ref: 'Products'
     },
-    order: {
+    order_no: {
         type: String,
-        ref: 'Orders',
-        required: true
+        ref: 'Orders'
     },
-});
+},{timestamps:true});
 
 const OrderDetail = mongoose.model("OrderDetail", OrderDetailSchema);
 module.exports = OrderDetail;

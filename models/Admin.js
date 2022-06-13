@@ -23,12 +23,12 @@ const AdminSchema = new Schema({
     email: {
         type: String,
         required: [true, "ກະລຸນາປ້ອນອີເມວ"],
-        unique: true,
+        unique: true
     },
     // 6
     password: {
         type: String,
-        required: [true, "ກະລຸນາປ້ອນລະຫັດຜ່ານ"],
+        required: [true, "ກະລຸນາປ້ອນລະຫັດຜ່ານ"]
     },
     token: {
         type: String,

@@ -88,4 +88,7 @@ router.delete("/orderDetail/deletes/:order_no", (req, res) => {
     });
 })
 
+// join product orderdetail order supplier employees
+
+
 module.exports = router;

@@ -2,6 +2,7 @@ const router = require('express').Router();
 const SaleDetail = require('../../models/SaleDetail');
 const logger = require('../../utils/logger');
 
+// income monthly
 router.get('/income/report', async(req, res) => {
     const date = new Date();
     const lastMonth = new Date(date.setMonth(date.getMonth()-1));
@@ -17,13 +18,12 @@ router.get('/income/report', async(req, res) => {
             {
                 $project:{
                     month:{ $month: '$createdAt' },
-                    total:{ $multiply: ['$price', '$sle_qty'] },
+                    total:{ $multiply: ['$price', '$qty'] },
                 },
             },
             {
                 $group:{
                     _id: '$month',
-                    // incTotal: {$sum: { $multiply: ['$price', '$sle_qty'] }}
                     incTotal: {$sum: '$total'}
                 }
             }

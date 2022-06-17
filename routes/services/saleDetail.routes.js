@@ -64,7 +64,7 @@ router.put("/saledetail/update/:id", async(req, res) => {
         const saleDetail = await SaleDetail.findByIdAndUpdate(_id,{
             $set: {
                 sle_qty: req.body.sle_qty,
-                price: req.body.price + 1000,
+                price: req.body.price,
                 product: req.body.product,
                 sale: req.body.sale
             }

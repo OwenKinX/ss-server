@@ -47,11 +47,42 @@ router.get('/products', async(req, res) => {
         console.log(error);
         logger.error(`${error.status || 500} - ${res.statusMessage} - ${error.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
     }
-})
+});
 
 // for report product
 router.get('/products/sales', (req, res) => {
     Product.aggregate([
+        {
+            $project:{
+                _id:0,
+                pro_id: 1,
+                name: 1,
+                price: 1,
+                description: 1,
+                stock_qty:1,
+                image: 1
+            }
+        }
+    ]).exec((err, result) => {
+        if(result){
+            res.status(200).json(result)
+        }else{
+            res.status(500).json({
+               error: err,
+               message: err.message
+            })
+        }
+    })
+});
+
+// for report product
+router.get('/products/sale', (req, res) => {
+    Product.aggregate([
+        {
+            $match:{
+                type: req.query.type
+            }
+        },
         {
             $project:{
                 _id:0,

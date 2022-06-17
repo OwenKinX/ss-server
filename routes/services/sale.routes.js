@@ -22,7 +22,7 @@ router.post('/sales/add', (req, res) => {
 // get all sale data
 router.get('/sales', async(req, res) => {
     try{
-        const sales = await Sales.find({});
+        const sales = await Sales.find();
         if(sales){
             res.status(200).json(sales);
         }else{

@@ -7,6 +7,7 @@ const bcrypt = require("bcryptjs");
 const Admin = require("../models/Admin");
 const logger = require("../utils/logger");
 const checkAuth = require("../middleware/auth");
+const { restart } = require("nodemon");
 
 require("dotenv").config();
 
@@ -44,16 +45,23 @@ router.post("/login", (req, res) => {
         const token = jwt.sign(
             { email: fetchUser.email, userId: fetchUser._id },
             process.env.TOKEN_KEY,
-            { expiresIn: "2h" }
+            { expiresIn: "8h" }
         )
-        return res.status(200).json({ result: result, token: token, expiresIn: 7200 });
+        return res.status(200).json(
+            {   
+                user: fetchUser._id,
+                result: result, 
+                token: token,
+                expiresIn: 28800 
+            }
+        );
     }).catch(err => {
         res.status(500).json({message: err.message});
     })
 });
 
 // get admin profile
-router.get("/profile/:id", checkAuth, async (req, res) => {
+router.get("/profile/:id", async (req, res) => {
     const _id = req.params.id;
     Admin.findById(_id).then(admin => {
         if(!admin) {
@@ -66,20 +74,16 @@ router.get("/profile/:id", checkAuth, async (req, res) => {
 })
 
 // Update profile route
-router.put("/update/:id", checkAuth, async (req, res) => {
+router.put("/profile/update/:id", (req, res) => {
     const _id = req.params.id
-    const { name, username, phone, email, password } = req.body;
-
-    const salt = await bcrypt.genSalt(10);
-    hashPassword = await bcrypt.hash(password, salt);
+    const { name, username, phone, email } = req.body;
 
     Admin.findByIdAndUpdate(_id,{
         $set: {
             name,
             username,
             phone,
-            email: email.toLowerCase(),
-            password: hashPassword
+            email: email.toLowerCase()
         }
     }, { new: true }).then(admin => {
         if(!admin) {
@@ -92,18 +96,14 @@ router.put("/update/:id", checkAuth, async (req, res) => {
 });
 
 // update user password
-router.patch("/password-update/:username", async (req, res) => {
+router.patch("/update/password", async (req, res) => {
     try {
-        const { username } = req.params;
-        const admin = await Admin.findOne({ username });
-
-        if( username == admin.username ){
-            const new_password = Admin.updateOne({ password })
-            res.status(200).json(new_password)
-        } else {
-            res.status(401).json("ຊື່ຜູ້ໃຊ້ບໍ່ມີໃນຖານຂໍ້ມູນ / Dont have this username in database")
-        }
-        
+        await bcrypt.hash(req.body.password, 10).then(hashPassword => {
+            const admin = Admin.updateOne(req.body.email, {
+                $set: { password: hashPassword }
+            })
+            res.status(200).json({message: "ແກ້ໄຂລະຫັດຜ່ານສຳເລັດ / Success"})
+        })
     } catch (error) {
         res.status(500).json(error.message);
         console.log(error);

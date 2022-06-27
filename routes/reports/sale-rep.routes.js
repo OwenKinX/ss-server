@@ -1,7 +1,6 @@
 const router = require('express').Router();
 const saleDetail = require('../../models/SaleDetail');
-const Sale =  require('../../models/Sale');
-const moment  = require('moment')
+const Sales = require("../../models/Sale")
 
 router.get('/saledetail/reports', (req,res) => {
     saleDetail.aggregate([
@@ -23,6 +22,15 @@ router.get('/saledetail/reports', (req,res) => {
             }
         },
         { $unwind: '$product' },
+        {
+            $lookup:{
+                from: 'employees',
+                localField: 'sale.employee',
+                foreignField: 'emp_id',
+                as: 'employee'
+            }
+        },
+        { $unwind: '$employee' },
         {
             $project:{
                 _id:1,
@@ -48,14 +56,15 @@ router.get('/saledetail/reports', (req,res) => {
 })
 
 router.get('/saledetail/report', (req,res) => {
-    const date = new Date(req.query.saledate);
-    // console.log(date);
+    const startdate = new Date(req.query.startdate);
+    const lastdate = new Date(req.query.lastdate);
+
     saleDetail.aggregate([
         {
             '$match': {
                 'createdAt': {
-                //   '$gte': new Date('Tue, 15 Jun 2022 00:00:00 GMT')
-                  '$gte': date
+                  $gte: startdate,
+                  $lte: lastdate
                 }
             }
         },
@@ -89,8 +98,7 @@ router.get('/saledetail/report', (req,res) => {
                 product:'$product.name',
                 customer:'$sale.customer',
                 employee: '$sale.employee',
-                cash: '$sale.cash',
-                total: { $multiply: [ "$price", "$qty" ] }
+                cash: '$sale.cash'
             },
         },
         
@@ -118,6 +126,57 @@ router.get('/saledetail/amount', (req, res) => {
             res.status(500).json({ message:err })
         }
     })
-})
+});
+
+// sale receipt
+router.get('/sales/receipt', (req,res) => {
+    saleDetail.aggregate([
+        {
+            $match:{
+                inv_no: req.query.inv_no
+            }
+        },
+        {
+            $lookup:{
+                from: 'sales',
+                localField: 'inv_no',
+                foreignField: 'invoice_no',
+                as: 'sale'
+            }
+        },
+        { $unwind: '$sale' },
+        
+        {
+            $lookup:{
+                from: 'products',
+                localField: 'pro_id',
+                foreignField: 'pro_id',
+                as: 'product'
+            }
+        },
+        { $unwind: '$product' },
+        {
+            $project:{
+                _id:0,
+                inv_no: 1,
+                price: 1,
+                qty:1,
+                date: '$sale.date',
+                product:'$product.name',
+                customer:'$sale.customer',
+                employee: '$sale.employee'
+            }
+        }
+        
+    ]).exec((err, result) => {
+        if(result){
+            res.status(200).json(result);
+        }else{
+            res.status(500).json({ message:err.message })
+        }
+    })
+});
+
+
 
 module.exports = router;

@@ -1,6 +1,4 @@
 const mongoose =  require('mongoose');
-const moment = require('moment-timezone');
-const dateThailand = moment.tz(Date.now(), "Asia/Bangkok");
 const Schema = mongoose.Schema
 
 const ImportSchema = new Schema({
@@ -9,39 +7,25 @@ const ImportSchema = new Schema({
         required: true,
         unique: true
     },
-    c_price: {
-        type: Number,
-        required: true
-    },
-    imp_qty: {
-        type: Number,
-        required: true
-    },
     date: {
         type: Date,
-        required: true,
-        default: dateThailand
+        required: true
     },
     bill_no: {
         type: Number,
         required: true
     },
-    product: {
-        type: Number,
-        ref: 'Products',
-        required: true
-    },
-    order: {
+    order_no: {
         type: String,
         ref: 'Orders',
         required: true
     },
     employee: {
         type: String,
-        ref: 'Employees',
-        required: true
+        ref: 'Employees'
     }
 }, {timestamps: true});
 
-const Imports = mongoose.model('Imports', ImportSchema)
-module.exports = Imports;
+const Imports = mongoose.model('Imports', ImportSchema);
+module.exports = Imports
+    

@@ -2,26 +2,34 @@ const express = require("express");
 const router = express.Router();
 const logger = require("./../../utils/logger");
 const Import = require("./../../models/Import");
+const ImportDetail = require("../../models/ImportDetail");
 
 // add import data
 router.post("/imports/add", (req, res) => {
-    const imports = new Import({
-        imp_no: req.body.imp_no,
-        c_price: req.body.c_price,
-        imp_qty: req.body.imp_qty,
-        date: req.body.date,
-        bill_no: req.body.bill_no,
-        product: req.body.product,
-        order: req.body.order,
-        employee: req.body.employee
-    });
-    imports.save().then(result => {
+    Import.create(
+        req.body
+    ).then(result => {
         res.status(200).json({
             message: "ບັນທຶກຂໍ້ມູນສຳເລັດ"
         });
     }).catch(err => {
         res.status(500).json({
-            error: err
+            error: err.message
+        });
+        logger.error(`${err.status || 500} - ${res.statusMessage} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+    });
+});
+
+router.post("/importdetail/add", (req, res) => {
+    ImportDetail.insertMany(
+        req.body
+    ).then(result => {
+        res.status(200).json({
+            message: "ບັນທຶກຂໍ້ມູນສຳເລັດ"
+        });
+    }).catch(err => {
+        res.status(500).json({
+            error: err.message
         });
         logger.error(`${err.status || 500} - ${res.statusMessage} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
     });
@@ -33,7 +41,7 @@ router.get("/imports", (req, res) => {
         res.status(200).json(imports);
     }).catch(err => {
         res.status(500).json({
-            error: err
+            error: err.message
         });
         logger.error(`${err.status || 500} - ${res.statusMessage} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
     });
@@ -46,7 +54,20 @@ router.get("/imports/:id", (req, res) => {
         res.status(200).json(imports);
     }).catch(err => {
         res.status(500).json({
-            error: err
+            error: err.message
+        });
+        logger.error(`${err.status || 500} - ${res.statusMessage} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+    });
+});
+
+// get single import data
+router.get("/importdetail/:imp_no", (req, res) => {
+    const imp_no = req.params.imp_no;
+    ImportDetail.find({ imp_no }).then(imports => {
+        res.status(200).json(imports);
+    }).catch(err => {
+        res.status(500).json({
+            error: err.message
         });
         logger.error(`${err.status || 500} - ${res.statusMessage} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
     });
@@ -64,7 +85,7 @@ router.put("/imports/update/:id", async (req, res) => {
         }
     } catch (err) {
         res.status(500).json({
-            error: err
+            error: err.message
         });
         logger.error(`${err.status || 500} - ${res.statusMessage} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
     }
@@ -73,14 +94,30 @@ router.put("/imports/update/:id", async (req, res) => {
 // delete import data
 router.delete("/imports/delete/:id", (req, res) => {
     const _id = req.params.id;
+
     Import.findByIdAndRemove(_id).then(imports => {
         res.status(200).json({ message: "ລົບຂໍ້ມູນສຳເລັດ" });
     }).catch(err => {
         res.status(500).json({
-            error: err
+            error: err.message
         });
         logger.error(`${err.status || 500} - ${res.statusMessage} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
     });
 })
+
+// delete import data
+router.delete("/importdetail/delete/:id", (req, res) => {
+    const imp_no = req.params.id;
+
+    ImportDetail.deleteMany({imp_no}).then(imports => {
+        res.status(200).json({ message: "ລົບຂໍ້ມູນສຳເລັດ" });
+    }).catch(err => {
+        res.status(500).json({
+            error: err.message
+        });
+        logger.error(`${err.status || 500} - ${res.statusMessage} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+    });
+})
+
 
 module.exports = router;

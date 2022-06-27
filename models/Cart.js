@@ -5,15 +5,9 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const CartSchema = new Schema({
-    product:{
+    pro_id:{
         type:Number,
         ref: 'Products'
-    },
-    p_name:{
-        type:String
-    },
-    price:{
-        type:Number
     },
     qty:{
         type:Number

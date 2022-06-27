@@ -1,46 +1,44 @@
 const router = require('express').Router();
-const Imports = require('../../models/Import')
+const ImportDetail = require('../../models/ImportDetail')
 
-router.get('/imports/report', (req, res) => {
-    Imports.aggregate([
+router.get('/imports/reports', (req, res) => {
+    ImportDetail.aggregate([
         {
             $lookup:{
                 from: 'products',
-                localField: 'product',
+                localField: 'pro_id',
                 foreignField: 'pro_id',
                 as: 'product'
             }
         },
         { $unwind:'$product' },
         {
-            $lookup:{
-                from: 'employees',
-                localField: 'employee',
-                foreignField: 'emp_id',
-                as: 'employee'
+            $lookup: {
+                from: 'imports',
+                localField: 'imp_no',
+                foreignField: 'imp_no',
+                as: 'import'
             }
         },
-        { $unwind:'$employee' },
+        { $unwind: '$import'},
         {
-            $lookup: {
+            $lookup:{
                 from: 'orders',
-                localField: 'order',
+                localField: 'import.order_no',
                 foreignField: 'order_no',
-                as: 'order'
+                as: 'order',
             }
         },
         { $unwind: '$order'},
         {
             $project:{
-                _id:1,
+                _id:0,
                 product: '$product.image',
                 p_name: '$product.name',
-                c_price: 1,
-                imp_qty: 1,
-                o_date: '$order.date',
-                date: 1,
-                total: { $multiply: ['$c_price', '$imp_qty'] },
-                // totalAmount: { $sum: { $multiply: ['$c_price', '$imp_qty'] } }
+                date: '$import.date',
+                order_date: '$order.date',
+                price: 1,
+                qty: 1
             }
         }
     ]).exec((err, result) => {
@@ -51,21 +49,59 @@ router.get('/imports/report', (req, res) => {
     })
 });
 
-router.get('/imports/amount', (req, res) => {
-    Imports.aggregate([
+router.get('/imports/report', (req, res) => {
+    const date = new Date(req.query.date);
+
+    ImportDetail.aggregate([
         {
-            $group: {
-                _id:'$id',
-                importGrandTotal: { $sum: { $multiply:['$c_price', '$imp_qty'] } }
+            $match:{
+                createdAt:{ $gte: date }
+            }
+        },
+        {
+            $lookup:{
+                from: 'products',
+                localField: 'pro_id',
+                foreignField: 'pro_id',
+                as: 'product'
+            }
+        },
+        { $unwind:'$product' },
+        {
+            $lookup: {
+                from: 'imports',
+                localField: 'imp_no',
+                foreignField: 'imp_no',
+                as: 'import'
+            }
+        },
+        { $unwind: '$import'},
+        {
+            $lookup:{
+                from: 'orders',
+                localField: 'import.order_no',
+                foreignField: 'order_no',
+                as: 'order',
+            }
+        },
+        { $unwind: '$order'},
+        {
+            $project:{
+                _id:0,
+                product: '$product.image',
+                p_name: '$product.name',
+                date: '$import.date',
+                order_date: '$order.date',
+                price: 1,
+                qty: 1
             }
         }
     ]).exec((err, result) => {
-        if(result){
-            res.status(200).json(result);
-        }else{
-            res.status(500).json({ message:err.message })
+        if(err){
+            res.status(500).json({ message:err.message });
         }
+        res.status(200).json(result)
     })
-})
+});
 
 module.exports = router;

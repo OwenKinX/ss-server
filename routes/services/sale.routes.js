@@ -74,7 +74,6 @@ router.put('/sales/update/:id', async(req, res) => {
     }
 });
 
-// delete sale data
 router.delete('/sales/delete/:id', (req, res) => {
     const _id = req.params.id;
     Sales.findByIdAndRemove({_id}).then(result => {

@@ -84,6 +84,10 @@ router.get('/products/amount', (req,res) =>{
             res.status(500).json({ message:err })
         }
     })
+});
+
+router.get('/income-expanse', (req, res) => {
+
 })
 
 module.exports = router;

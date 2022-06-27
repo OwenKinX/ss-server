@@ -4,11 +4,15 @@ const logger = require("./../../utils/logger");
 const Product = require("./../../models/Products");
 const extractFile = require("./../../middleware/file");
 const fs = require('fs');
+const { default: mongoose } = require("mongoose");
 
 // add
 router.post("/product/add", extractFile, (req, res) => {
-    const url = `${req.protocol}://${req.get('host')}`;
-    const image = `${url}/images/${req.file.filename}`;
+    let image = req.body.image
+    if(req.file){
+        const url = `${req.protocol}://${req.get('host')}`;
+        image = `${url}/images/${req.file.filename}`;
+    }
     const product = new Product({
         pro_id: req.body.pro_id,
         name: req.body.name,
@@ -52,6 +56,38 @@ router.get('/products', async(req, res) => {
 // for report product
 router.get('/products/sales', (req, res) => {
     Product.aggregate([
+        {
+            $project:{
+                _id:0,
+                pro_id: 1,
+                name: 1,
+                price: 1,
+                description: 1,
+                stock_qty:1,
+                image: 1
+            }
+        }
+    ]).exec((err, result) => {
+        if(result){
+            res.status(200).json(result)
+        }else{
+            res.status(500).json({
+               error: err,
+               message: err.message
+            })
+        }
+    })
+});
+
+// 
+router.get('/product/sale', (req, res) => {
+    const pro_id = Number(req.query.pro_id);
+    Product.aggregate([
+        {
+            $match: {
+                pro_id: pro_id
+            }
+        },
         {
             $project:{
                 _id:0,
@@ -151,7 +187,7 @@ router.get('/products/sum/stock', async(req,res) => {
     }
 })
 
-// get single
+// get single in collection
 router.get('/product/:id', async(req, res) => {
     try {
         const _id = req.params.id;
@@ -168,12 +204,69 @@ router.get('/product/:id', async(req, res) => {
         console.log(error);
         logger.error(`${error.status || 500} - ${res.statusMessage} - ${error.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
     }
+});
+
+// get all product data 
+router.get('/products/info', (req, res) => {
+    // const _id = mongoose.Types.ObjectId(req.query.id);
+    const _id = new mongoose.Types.ObjectId(req.query.id);
+    Product.aggregate([
+        {
+            $match:{
+                _id: _id
+            }
+        },
+        {
+            $lookup:{
+                from: 'product-types',
+                localField: 'type',
+                foreignField: 'pt_id',
+                as: 'type'
+            }
+        },
+        { $unwind: '$type' },
+        {
+            $lookup:{
+                from: 'product-categories',
+                localField: 'type.category',
+                foreignField: 'pc_id',
+                as: 'category'
+            }
+        },
+        { $unwind: '$category' },
+        {
+            $project:{
+                _id: 1,
+                pro_id: 1,
+                name: 1,
+                price: 1,
+                description: 1,
+                stock_qty: 1,
+                image: 1,
+                type: '$type.name',
+                category: '$category.name'
+            }
+        }
+    ]).exec((err, result) => {
+        if(result){
+            res.status(200).json(result)
+        }else{
+            res.status(500).json({
+               error: err,
+               message: err.message
+            })
+        }
+    });
 })
+
 
 // update
 router.put('/product/update/:id', extractFile,(req, res) => {
-    const url = `${req.protocol}://${req.get('host')}`;
-    image = `${url}/images/${req.file.filename}`;
+    let image = req.body.image
+    if(req.file){
+        const url = `${req.protocol}://${req.get('host')}`;
+        image = `${url}/images/${req.file.filename}`;
+    }
     const product = Product.findByIdAndUpdate(
         {_id: req.params.id},
         {

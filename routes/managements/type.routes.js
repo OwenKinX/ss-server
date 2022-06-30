@@ -38,6 +38,25 @@ router.get('/types', async(req, res) => {
     }
 })
 
+// filter type by categories 
+router.get('/type', async(req, res) => {
+    const category = req.query.category
+    try{
+        const type = await Types.find({category});
+        if (type) {
+            res.status(200).send(type);
+        }else{
+            res.status(404).send({ message: "ບໍ່ພົບຂໍ້ມູນ [ -- Not Types Found -- ]" });
+            logger.error(`404 || ${res.statusMessage} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+        }
+    }
+    catch(error){
+        res.status(500).send(error.message);
+        console.log(error);
+        logger.error(`${error.status || 500} - ${res.statusMessage} - ${ error.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+    }
+})
+
 // get single category type
 router.get('/type/:id', async(req, res) => {
     try{

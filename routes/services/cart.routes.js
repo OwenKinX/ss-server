@@ -3,7 +3,10 @@ const logger = require("../../utils/logger");
 const Cart = require("../../models/Cart");
 
 router.post('/cart/add', (req,res) => {
-    Cart.save().then(result => {
+    
+    Cart.insertMany(
+        req.body
+    ).then(result => {
         res.status(200).json(result);
     }).catch(err => {
         res.status(500).json({
@@ -13,23 +16,12 @@ router.post('/cart/add', (req,res) => {
     })
 });
 
-router.get('/cart', (req, res) => {
-    Cart.find().then(result => {
-        res.status(200).json(result);
-    }).catch(err => {
-        res.status(500).json({
-            error: err.message
-        });
-        logger.error(`${err.status || 500} - ${res.statusMessage} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
-    })
-})
-
-router.get('/cart/user', (req,res) => {
+router.get('/cart/users', (req,res) => {
     Cart.aggregate([
         {
             $lookup:{
                 from: 'products',
-                localField: 'product',
+                localField: 'pro_id',
                 foreignField: 'pro_id',
                 as: 'product'
             },
@@ -38,7 +30,7 @@ router.get('/cart/user', (req,res) => {
         {
             $lookup:{
                 from: 'customers',
-                localField: 'customer',
+                localField: 'cus_id',
                 foreignField: 'cus_id',
                 as: 'customer'
             }
@@ -47,13 +39,19 @@ router.get('/cart/user', (req,res) => {
         {
             $project:{
                 _id:1,
-                product: '$product.image',
+                product: '$product.pro_id',
                 p_name: '$product.name',
-                price:1,
+                price:'$product.price',
                 qty:1,
-                address:1,
+                address:{
+                    province:'$customer.province',
+                    district:'$customer.district',
+                    village:'$customer.village'
+                },
                 customer: '$customer.cus_id',
                 c_name: '$customer.name',
+                c_tel: '$customer.phone',
+                c_email:'$customer.email',
                 createdAt:1
             }
         }
@@ -65,20 +63,50 @@ router.get('/cart/user', (req,res) => {
     })
 })
 
-router.get('/cart/:customer', (req, res) => {
-    Cart.findOne({customer: req.params.customer}).then(cart => {
-        res.status(200).json(cart);
-    }).catch(err => {
-        res.status(500).json({
-            error: err.message
-        });
-        logger.error(`${err.status || 500} - ${res.statusMessage} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+router.get('/cart/user', (req,res) => {
+
+    const id = Number(req.query.id);
+
+    Cart.aggregate([
+        {
+            $match:{
+                cus_id: id
+            }
+        },
+        {
+            $lookup:{
+                from: 'customers',
+                localField: 'cus_id',
+                foreignField: 'cus_id',
+                as: 'customer'
+            }
+        },
+        { $unwind: '$customer' },
+        {
+            $project:{
+                _id:0,
+                c_id: '$customer.cus_id',
+                c_name: '$customer.name',
+                c_tel: '$customer.phone',
+                c_email:'$customer.email',
+                c_address:{
+                    province:'$customer.province',
+                    district:'$customer.district',
+                    village:'$customer.village'
+                },
+            }
+        }
+    ]).exec((err, result) => {
+        if(err){
+            res.status(500).json({ message:err.message });
+        }
+        res.status(200).json(result)
     })
 })
 
 router.delete('/cart/delete/:id', (req, res) => {
-    const _id = req.params.id;
-    Cart.findByIdAndRemove({_id}).then(result => {
+    const cus_id = req.params.id;
+    Cart.deleteMany({cus_id}).then(result => {
         res.status(200).json({
             message: "ຂໍ້ມູນໄດ້ຖືກລິບແລ້ວ"
         });

@@ -18,6 +18,7 @@ const ProductSchema = new Schema({
     description: String,
     stock_qty: {
         type: Number,
+        default: 1,
         required: true,
     },
     type: {

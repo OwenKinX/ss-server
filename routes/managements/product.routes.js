@@ -305,17 +305,6 @@ router.delete('/product/delete/:id', async(req, res) => {
     try{
         const _id = req.params.id;
         const product = await Product.findByIdAndRemove({_id});
-        
-        const imageRes = product.image;
-        console.log(imageRes.replace('http://localhost:8001/images/',''));
-        fs.unlinkSync(`${__dirname}/public/images/${imageRes}`, (err) => {
-            if(err){
-                err.message = "Can not delete image"
-                res.status(500).json({ err });
-                return;
-            }
-            console.log("Image Delete Successfully");
-        });
 
         if (product) {
             res.status(200).send({ message: "[ -- ລົບຂໍ້ມູນສິນຄ້າສຳເລັດ | Product deleted successfully -- ]", product });

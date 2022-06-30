@@ -4,6 +4,7 @@ const AutoIncrement = require('mongoose-sequence')(mongoose);
 const CustomerSchema = new mongoose.Schema({
     cus_id: {
         type: Number,
+        unique: true,
         default: 0,
         required: true
     },

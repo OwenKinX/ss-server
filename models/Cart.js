@@ -4,22 +4,22 @@ const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 
-const CartSchema = new Schema({
+const CartDetailSchema = new Schema({
     pro_id:{
         type:Number,
         ref: 'Products'
     },
+    price:{
+        type:Number
+    },
     qty:{
         type:Number
     },
-    address:{
-        type:String
-    },
-    customer:{
+    cus_id:{
         type:Number,
         ref: 'Customers'
     }
 },{timestamps:true})
 
-const Cart = mongoose.model("Carts", CartSchema);
+const Cart = mongoose.model("Carts", CartDetailSchema);
 module.exports = Cart;

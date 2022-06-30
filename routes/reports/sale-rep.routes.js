@@ -61,14 +61,6 @@ router.get('/saledetail/report', (req,res) => {
 
     saleDetail.aggregate([
         {
-            '$match': {
-                'createdAt': {
-                  $gte: startdate,
-                  $lte: lastdate
-                }
-            }
-        },
-        {
             $lookup:{
                 from: 'sales',
                 localField: 'inv_no',
@@ -86,7 +78,14 @@ router.get('/saledetail/report', (req,res) => {
             }
         },
         { $unwind: '$product' },
-        
+        {
+            '$match': {
+                'sale.date': {
+                  $gte: startdate,
+                  $lte: lastdate
+                }
+            }
+        },
         {
             $project:{
                 _id:1,

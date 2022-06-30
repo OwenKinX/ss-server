@@ -22,14 +22,16 @@ const SaleSchema = new Schema({
     delivery: {
         type: String,
     },
+    deliv_place:{
+        type: String,
+    },
     customer: {
         type: Number,
         ref: 'Customers',
     },
     employee: {
         type: String,
-        ref: 'Employees',
-        required: true
+        ref: 'Employees'
     }
 },{timestamps:true});
 

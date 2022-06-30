@@ -44,6 +44,7 @@ const importRoute = require("./routes/import-order/import.routes");
 const saleRoute = require("./routes/services/sale.routes");
 const saleDetail = require("./routes/services/saleDetail.routes");
 const userCart = require("./routes/services/cart.routes");
+const onlineSale = require("./routes/services/online-sale.routes")
 
 app.use('/images', express.static(path.join(__dirname, 'public/images')));
 
@@ -84,5 +85,6 @@ app.use("/api", importRoute);
 app.use("/api", saleRoute);
 app.use("/api", saleDetail);
 app.use("/api", userCart);
+app.use("/api", onlineSale);
 
 module.exports = app;

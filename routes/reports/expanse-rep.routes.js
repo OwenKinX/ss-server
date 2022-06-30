@@ -77,19 +77,67 @@ router.get('/expanse/daily', async(req, res) => {
 })
 
 router.get('/expanse/monthly', async(req, res) => {
+
+    const monthyear = new Date(req.query.month);
+    const _month = new Date(monthyear.getMonth()+1);
+    const _year = new Date(monthyear.getFullYear());
+    const monthly = Number(_month);
+    const year = Number(_year);
+
     try{
         const expanse = await ImportDetail.aggregate([
             {
-                $group:{
-                    _id:{
-                        $month: '$createdAt'
+                $project:{
+                    "totalAmount": { $multiply: ['$price', '$qty'] },
+                    "ttqty": "$qty",
+                    "day":{
+                        $dayOfMonth:"$createdAt"
                     },
-                    totalExpanseAmount: { $sum: { $multiply: [ "$price", "$qty" ] }}
+                    "month":{
+                        $month:"$createdAt"
+                    },
+                    "year":{
+                        $year:"$createdAt"
+                    }
                 }
             },
             {
-                $sort: {
-                    _id: 1
+                $match:{
+                    "month": monthly,
+                    "year": year
+                }
+            },
+            {
+                $group:{
+                    "_id": "$day",
+                    "date":{
+                        $first: "$day"
+                    },
+                    "month":{
+                        $first: "$month"
+                    },
+                    "year":{
+                        $first: "$year"
+                    },
+                    "totalQty": { $sum: '$ttqty'},
+                    "expanseTotal":{
+                        $sum:"$totalAmount"
+                    }
+                }
+            },
+            {
+                $project:{
+                    "_id":0,
+                    "date":1,
+                    "month":1,
+                    "year":1,
+                    "totalQty":1,
+                    "expanseTotal":1
+                }
+            },
+            {
+                $sort:{
+                    date: 1
                 }
             }
         ])
@@ -116,8 +164,23 @@ router.get('/expanse/sixmonth', async(req, res) => {
                         $lte: lastDay
                     }
                 }
+            },
+            {
+                $group:{
+                    _id:{
+                        $month: '$createdAt'
+                    },
+                    totalExpanseAmount: { $sum: {$multiply: ["$price", "$qty"]}},
+                    count: { $sum: 1}
+                }
+            },
+            {
+                $sort: {
+                    _id: 1
+                }
             }
-        ])
+        ]);
+        res.status(200).json(expanse)
     }catch(err){
         res.status(500).json({
             error:err.message
@@ -127,12 +190,23 @@ router.get('/expanse/sixmonth', async(req, res) => {
 })
 
 router.get('/expanse/yearly', async(req, res) => {
+    const date = new Date();
+    const firstDay = new Date(date.getFullYear(),0);
+    const lastDay = new Date(date.getFullYear(), 12, 0);
     try{
         const expanse = await ImportDetail.aggregate([
             {
+                $match: {
+                    createdAt: {
+                        $gte: firstDay,
+                        $lte: lastDay
+                    }
+                }
+            },
+            {
                 $group:{
                     _id:{
-                        $year: '$createdAt'
+                        $month: '$createdAt'
                     },
                     totalExpanseAmount: { $sum: { $multiply: [ "$price", "$qty" ] }}
                 }

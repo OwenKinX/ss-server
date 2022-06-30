@@ -11,8 +11,7 @@ const UnitSchema = new Schema({
         required: true,
     },
     name_en: {
-        type: String,
-        required: true
+        type: String
     },
 },{timestamps:true});
 

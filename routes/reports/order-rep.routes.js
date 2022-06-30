@@ -48,14 +48,6 @@ router.get('/orderdetail/report', (req, res) => {
 
     orderDetail.aggregate([
         {
-            '$match': {
-                'createdAt': {
-                  $gte: startdate,
-                  $lte: lastdate
-                }
-            }
-        },
-        {
             $lookup:{
                 from:'orders',
                 localField: 'order_no',
@@ -73,6 +65,14 @@ router.get('/orderdetail/report', (req, res) => {
             }
         },
         { $unwind: '$product' },
+        {
+            '$match': {
+                'order.date': {
+                  $gte: startdate,
+                  $lte: lastdate
+                }
+            }
+        },
         {
             $project:{
                 _id:1,

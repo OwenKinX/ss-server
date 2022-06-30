@@ -54,11 +54,6 @@ router.get('/imports/report', (req, res) => {
 
     ImportDetail.aggregate([
         {
-            $match:{
-                createdAt:{ $gte: date }
-            }
-        },
-        {
             $lookup:{
                 from: 'products',
                 localField: 'pro_id',
@@ -85,6 +80,11 @@ router.get('/imports/report', (req, res) => {
             }
         },
         { $unwind: '$order'},
+        {
+            $match:{
+                'import.date': date
+            }
+        },
         {
             $project:{
                 _id:0,

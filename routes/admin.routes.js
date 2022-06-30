@@ -7,7 +7,6 @@ const bcrypt = require("bcryptjs");
 const Admin = require("../models/Admin");
 const logger = require("../utils/logger");
 const checkAuth = require("../middleware/auth");
-const { restart } = require("nodemon");
 
 require("dotenv").config();
 
@@ -30,33 +29,37 @@ router.post("/register", (req, res) => {
 });
 
 // login route for admin
-router.post("/login", (req, res) => {
+router.post("/login", (req, res, next) => {
     let fetchUser;
     Admin.findOne({ email: req.body.email }).then(user => {
         if(!user) {
-            return res.status(404).json({message: "ບໍ່ມີຜູ້ໃຊ້ນີ້ / User not found"});
+            return res.status(401).json({message: "ເຂົ້າສູ່ລະບົບລົ້ມເຫຼວ"});
         }
         fetchUser = user;
         return bcrypt.compare(req.body.password, user.password);
     }).then(result => {
         if(!result) {
-            return res.status(409).json({message: "ເຂົ້າສູ່ລະບົບລົ້ມເຫຼວ / Failed to login"});
+            return res.status(401).json({message: "ເຂົ້າສູ່ລະບົບລົ້ມເຫຼວ"});
         }
         const token = jwt.sign(
             { email: fetchUser.email, userId: fetchUser._id },
             process.env.TOKEN_KEY,
             { expiresIn: "8h" }
         )
-        return res.status(200).json(
+        res.status(200).json(
             {   
                 user: fetchUser._id,
                 result: result, 
                 token: token,
-                expiresIn: 28800 
+                expiresIn: 28800,
+                message: "ເຂົ້າສູ່ລະບົບສຳເລັດ"
             }
         );
     }).catch(err => {
-        res.status(500).json({message: err.message});
+        res.status(500).json({
+            error: err.message,
+            message: "Invalid authentication credentials!"
+        });
     })
 });
 

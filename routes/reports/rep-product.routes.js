@@ -4,21 +4,11 @@ const Product = require('../../models/Products');
 router.get('/products/reports', (req, res) => {
     Product.aggregate([
         {
-            $lookup:{
-                from: 'product-types',
-                localField: 'type',
-                foreignField: 'pt_id',
-                as: 'type'
-            },
-        },
-        { $unwind: '$type' },
-        {
             $project:{
                 _id:1,
                 name:1,
                 price:1,
                 stock_qty:1,
-                type: '$type.name',
                 total: { $multiply: ['$price', '$stock_qty'] },
                 image:1
             }
